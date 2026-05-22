@@ -1,0 +1,96 @@
+{
+  "name": "eglador-ui-react-text-reveal",
+  "version": "1.0.0-alpha.1",
+  "description": "Letter-by-letter text reveal animations for React — pure CSS, zero runtime dependencies, Tailwind v4 friendly",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eglador/eglador-ui-react-text-reveal.git"
+  },
+  "keywords": [
+    "eglador",
+    "components",
+    "react",
+    "ui",
+    "text",
+    "reveal",
+    "animation",
+    "letter",
+    "tailwindcss",
+    "tailwindcss-v4",
+    "nextjs",
+    "vite",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "author": {
+    "name": "Kenan Gündoğan",
+    "email": "kenangundogann@gmail.com",
+    "url": "https://github.com/kenangundogan"
+  },
+  "contributors": [
+    {
+      "name": "Eglador",
+      "url": "https://github.com/eglador"
+    }
+  ],
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/eglador/eglador-ui-react-text-reveal/issues"
+  },
+  "homepage": "https://github.com/eglador/eglador-ui-react-text-reveal#readme",
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-a11y": "^10.4.0",
+    "@storybook/addon-docs": "^10.4.0",
+    "@storybook/addon-vitest": "^10.4.0",
+    "@storybook/react-vite": "^10.4.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/browser-playwright": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.7",
+    "clsx": "^2.1.1",
+    "playwright": "^1.60.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "storybook": "^10.4.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13",
+    "vitest": "^4.1.7"
+  }
+}
