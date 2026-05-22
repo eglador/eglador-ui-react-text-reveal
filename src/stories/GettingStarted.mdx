@@ -1,0 +1,115 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Getting Started" />
+
+# Getting Started
+
+Render any text with one of 36 built-in letter-reveal animations.
+
+---
+
+## Basic usage
+
+```tsx
+import { TextReveal } from "eglador-ui-react-text-reveal";
+
+<TextReveal variant="cinematic-blur">ARVENIS</TextReveal>
+```
+
+The component splits the string into letter spans, stamps each one with a
+staggered `animation-delay`, and injects the keyframes on first mount.
+
+---
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `children` | `string` | — | The text to animate. Only string content is supported. |
+| `variant` | `TextRevealVariant` | `"fade"` | One of the 36 built-in animations |
+| `staggerDelay` | `number` (ms) | `80` | Delay between consecutive letters |
+| `duration` | `number` (ms) | per-variant | Override the animation duration |
+| `startDelay` | `number` (ms) | `0` | Delay before the first letter starts |
+| `splitBy` | `"letter" \| "word"` | `"letter"` | Split unit |
+| `ariaLabel` | `string` | `children` | Accessible name; defaults to the raw text |
+| `className` | `string` | — | Class on the wrapping `<span>` |
+
+---
+
+## Examples
+
+### Cinematic blur (hero headline)
+
+```tsx
+<TextReveal
+  variant="cinematic-blur"
+  className="text-6xl font-light tracking-widest text-white"
+  staggerDelay={150}
+>
+  ARVENIS
+</TextReveal>
+```
+
+### Word-level stagger
+
+```tsx
+<TextReveal
+  variant="slide-up"
+  splitBy="word"
+  staggerDelay={120}
+  className="text-2xl text-zinc-900"
+>
+  The quick brown fox
+</TextReveal>
+```
+
+### Looping wave (decorative)
+
+```tsx
+<TextReveal
+  variant="wave"
+  staggerDelay={120}
+  className="text-4xl font-bold text-cyan-400"
+>
+  HELLO
+</TextReveal>
+```
+
+### Delayed start (sequence with other content)
+
+```tsx
+<>
+  <Image ... />
+  <TextReveal variant="fade" startDelay={400} staggerDelay={50}>
+    Welcome
+  </TextReveal>
+</>
+```
+
+---
+
+## Accessibility
+
+- The outer `<span>` carries `role="text"` and `aria-label` (defaults to the
+  raw string). Screen readers announce the full text once instead of letter
+  by letter.
+- Each letter span is `aria-hidden`.
+- The injected stylesheet contains a `@media (prefers-reduced-motion: reduce)`
+  block that disables animations and shows the final state immediately.
+
+---
+
+## Replaying the animation
+
+Use the React `key` prop to remount the component and replay:
+
+```tsx
+const [key, setKey] = useState(0);
+
+<TextReveal key={key} variant="elastic">ARVENIS</TextReveal>
+<button onClick={() => setKey((k) => k + 1)}>Replay</button>
+```
+
+---
+
+For bugs or suggestions, [open an issue on GitHub](https://github.com/eglador/eglador-ui-react-text-reveal/issues).

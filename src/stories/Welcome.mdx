@@ -1,0 +1,78 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Welcome" />
+
+<img src="/eglador-logo.svg" alt="eglador-ui-react-text-reveal" width="160" style={{ marginBottom: 24 }} />
+
+# eglador-ui-react-text-reveal
+
+<div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+  <img src="https://img.shields.io/npm/v/eglador-ui-react-text-reveal?style=flat-square&color=blue" alt="npm version" />
+  <img src="https://img.shields.io/npm/dm/eglador-ui-react-text-reveal?style=flat-square&color=green" alt="npm downloads" />
+  <img src="https://img.shields.io/npm/l/eglador-ui-react-text-reveal?style=flat-square" alt="license" />
+  <img src="https://img.shields.io/badge/zero%20deps-runtime-22C55E?style=flat-square" alt="zero runtime deps" />
+  <img src="https://img.shields.io/badge/tailwindcss-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="tailwind v4" />
+  <img src="https://img.shields.io/badge/react-19-61DAFB?style=flat-square&logo=react&logoColor=white" alt="react 19" />
+  <img src="https://img.shields.io/badge/typescript-ready-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="typescript" />
+</div>
+
+Letter-by-letter text reveal animations for React — pure CSS, zero runtime
+dependencies, Tailwind v4 friendly, SSR-safe, respects `prefers-reduced-motion`.
+
+---
+
+## Installation
+
+```bash
+npm install eglador-ui-react-text-reveal
+```
+
+## Quick Start
+
+```tsx
+import { TextReveal } from "eglador-ui-react-text-reveal";
+
+<TextReveal variant="cinematic-blur">ARVENIS</TextReveal>
+```
+
+---
+
+## Variants
+
+36 letter-reveal variants ship with the initial release:
+
+`fade` · `cinematic-blur` · `decode` · `slide-up` · `neon-flicker` ·
+`flip-x` · `typewriter` · `elastic` · `drop-bounce` · `wave` · `skew` ·
+`spotlight` · `shatter` · `stretch-y` · `flip-y` · `color-burst` ·
+`focus-pull` · `wind-scatter` · `liquid-fill` · `cyber-glitch` ·
+`long-shadow` · `sonar-pulse` · `squash-stretch` · `ghost-float` ·
+`origami-unfold` · `magnetic-snap` · `outline-trace` · `spin-3d` ·
+`pendulum` · `laser-snap` · `heartbeat` · `elevator` · `magnifier` ·
+`starburst` · `lantern-flicker` · `water-ripple`
+
+See the **TextReveal** story for a live grid of every variant.
+
+---
+
+## Features
+
+- **Zero runtime dependencies** — `clsx` and `tailwind-merge` are pre-bundled
+- **Pure CSS animations** — no framer-motion, no animation engine
+- **SSR-safe** — keyframes injected on client mount
+- **Accessible** — wraps text with `role="text"` and `aria-label`; each
+  letter is `aria-hidden`. Respects `prefers-reduced-motion` automatically
+- **Tree-shakeable** — `sideEffects: false`, ESM + CJS dual builds
+- **TypeScript-first** — typed variant union, fully typed props
+
+---
+
+## Links
+
+- [GitHub](https://github.com/eglador/eglador-ui-react-text-reveal)
+- [npm](https://www.npmjs.com/package/eglador-ui-react-text-reveal)
+
+---
+
+**Author:** Kenan Gündoğan — [github.com/kenangundogan](https://github.com/kenangundogan)
+
+Maintained under [Eglador](https://github.com/eglador).
