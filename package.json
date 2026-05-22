@@ -1,6 +1,6 @@
 {
   "name": "eglador-ui-react-text-reveal",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Letter-by-letter text reveal animations for React — pure CSS, zero runtime dependencies, Tailwind v4 friendly",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

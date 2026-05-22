@@ -3,6 +3,7 @@ import * as React from "react";
 import {
   TextReveal,
   TEXT_REVEAL_VARIANTS,
+  type TextRevealTrigger,
   type TextRevealVariant,
 } from "../components/text-reveal";
 
@@ -13,6 +14,7 @@ type StoryArgs = {
   duration: number;
   startDelay: number;
   splitBy: "letter" | "word";
+  trigger: TextRevealTrigger;
 };
 
 const meta: Meta<StoryArgs> = {
@@ -23,7 +25,7 @@ const meta: Meta<StoryArgs> = {
     docs: {
       description: {
         component:
-          "Letter-by-letter text reveal animations. 36 built-in variants — pure CSS keyframes injected on mount, SSR-safe, color-agnostic, and `prefers-reduced-motion` aware. Wraps the output in `role=\"text\"` with `aria-label` so screen readers announce the whole string instead of each letter.",
+          "Letter-by-letter text reveal animations. 36 built-in variants — pure CSS keyframes injected on mount, SSR-safe, color-agnostic, and `prefers-reduced-motion` aware. Two triggers (`mount` / `viewport`), `onComplete` callback, optional `decodeChars` for the decode variant. Wraps the output in `role=\"text\"` with `aria-label` so screen readers announce the whole string instead of each letter.",
       },
     },
   },
@@ -34,6 +36,7 @@ const meta: Meta<StoryArgs> = {
     duration: 1500,
     startDelay: 0,
     splitBy: "letter",
+    trigger: "mount",
   },
   argTypes: {
     children: { control: "text" },
@@ -45,6 +48,7 @@ const meta: Meta<StoryArgs> = {
     duration: { control: { type: "number", min: 100, max: 5000, step: 100 } },
     startDelay: { control: { type: "number", min: 0, max: 3000, step: 50 } },
     splitBy: { control: "select", options: ["letter", "word"] },
+    trigger: { control: "select", options: ["mount", "viewport"] },
   },
 };
 
@@ -75,6 +79,7 @@ export const Default: Story = {
           duration={args.duration}
           startDelay={args.startDelay}
           splitBy={args.splitBy}
+          trigger={args.trigger}
           className="text-5xl font-light uppercase tracking-[0.18em] text-zinc-900"
         >
           {args.children}
@@ -226,6 +231,163 @@ export const Sizes: Story = {
             <TextReveal
               variant="elastic"
               className={`${size} font-light text-zinc-900`}
+            >
+              ARVENIS
+            </TextReveal>
+          </div>
+        ))}
+      </div>
+    );
+  },
+};
+
+export const ScrollTrigger: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`trigger=\"viewport\"` defers the animation until the element enters the viewport (`IntersectionObserver`). Scroll past the spacer to see each headline animate in. Customize the trip point with `viewportThreshold` (0–1, default 0.1) and `viewportRootMargin` (CSS string, default `\"0px\"`).",
+      },
+    },
+  },
+  render: function ScrollTriggerStory() {
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="rounded-sm border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center text-xs uppercase tracking-widest text-zinc-500">
+          Scroll down ↓
+        </div>
+        <div className="h-[60vh]" aria-hidden="true" />
+        {(
+          [
+            "cinematic-blur",
+            "slide-up",
+            "elastic",
+            "spin-3d",
+          ] as const
+        ).map((v) => (
+          <div
+            key={v}
+            className="flex flex-col gap-2 rounded-sm border border-zinc-200 bg-white p-8"
+          >
+            <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+              {v} · trigger=&quot;viewport&quot;
+            </span>
+            <TextReveal
+              variant={v}
+              trigger="viewport"
+              viewportThreshold={0.3}
+              className="text-4xl font-light uppercase tracking-[0.18em] text-zinc-900"
+            >
+              ARVENIS
+            </TextReveal>
+          </div>
+        ))}
+        <div className="h-[40vh]" aria-hidden="true" />
+      </div>
+    );
+  },
+};
+
+export const OnComplete: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`onComplete` fires once when the last letter finishes its entry animation. Useful for sequencing — chain a tagline after the headline, fade in a button, fetch data, etc.",
+      },
+    },
+  },
+  render: function OnCompleteStory() {
+    const [key, setKey] = React.useState(0);
+    const [showTagline, setShowTagline] = React.useState(false);
+    const [showButton, setShowButton] = React.useState(false);
+    React.useEffect(() => {
+      setShowTagline(false);
+      setShowButton(false);
+    }, [key]);
+    return (
+      <div className="flex flex-col items-start gap-4 rounded-sm border border-zinc-200 bg-white p-12">
+        <TextReveal
+          key={`title-${key}`}
+          variant="cinematic-blur"
+          staggerDelay={150}
+          className="text-6xl font-light uppercase tracking-[0.22em] text-zinc-900"
+          onComplete={() => setShowTagline(true)}
+        >
+          ARVENIS
+        </TextReveal>
+        {showTagline && (
+          <TextReveal
+            key={`tag-${key}`}
+            variant="fade"
+            staggerDelay={20}
+            splitBy="word"
+            className="text-xs uppercase tracking-[0.4em] text-zinc-500"
+            onComplete={() => setShowButton(true)}
+          >
+            A new chapter in motion
+          </TextReveal>
+        )}
+        {showButton && (
+          <button
+            type="button"
+            className="mt-2 rounded-sm border border-zinc-900 bg-zinc-900 px-4 py-2 text-[11px] font-medium uppercase tracking-widest text-white transition hover:bg-zinc-800"
+            style={{ animation: "egl-tr-fade 400ms ease-out forwards" }}
+          >
+            Explore
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setKey((k) => k + 1)}
+          className="mt-2 rounded-sm border border-zinc-200 bg-white px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-zinc-700 transition hover:bg-zinc-50"
+        >
+          Replay
+        </button>
+      </div>
+    );
+  },
+};
+
+export const CustomDecodeChars: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The `decode` variant scrambles random characters until it settles on the target. Override the pool with `decodeChars` — e.g. binary `01`, katakana, kanji, emoji.",
+      },
+    },
+  },
+  render: function CustomDecodeCharsStory() {
+    const [key, setKey] = React.useState(0);
+    const pools = [
+      { label: "default (A–Z, 0–9, symbols)", chars: undefined },
+      { label: "binary (0 1)", chars: "01" },
+      { label: "katakana", chars: "アイウエオカキクケコサシスセソタチツテト" },
+      { label: "emoji", chars: "★☆●◯■□▲△▼▽◆◇♥♦♣♠" },
+    ];
+    return (
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={() => setKey((k) => k + 1)}
+          className="self-start rounded-sm border border-zinc-200 bg-white px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-zinc-700 transition hover:bg-zinc-50"
+        >
+          Replay
+        </button>
+        {pools.map(({ label, chars }) => (
+          <div
+            key={label}
+            className="flex flex-col gap-2 rounded-sm border border-zinc-200 bg-white p-8"
+          >
+            <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+              {label}
+            </span>
+            <TextReveal
+              key={`${label}-${key}`}
+              variant="decode"
+              decodeChars={chars}
+              className="text-3xl uppercase tracking-[0.18em] text-zinc-900"
             >
               ARVENIS
             </TextReveal>

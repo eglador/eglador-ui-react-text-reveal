@@ -31,6 +31,11 @@ staggered `animation-delay`, and injects the keyframes on first mount.
 | `duration` | `number` (ms) | per-variant | Override the animation duration |
 | `startDelay` | `number` (ms) | `0` | Delay before the first letter starts |
 | `splitBy` | `"letter" \| "word"` | `"letter"` | Split unit |
+| `trigger` | `"mount" \| "viewport"` | `"mount"` | Start on mount or when scrolled into view |
+| `viewportThreshold` | `number` | `0.1` | IntersectionObserver threshold (0–1) |
+| `viewportRootMargin` | `string` | `"0px"` | IntersectionObserver `rootMargin` |
+| `onComplete` | `() => void` | — | Fires once when the last letter finishes |
+| `decodeChars` | `string` | `A–Z 0–9 @#$%&<>?` | Character pool for the `decode` variant |
 | `ariaLabel` | `string` | `children` | Accessible name; defaults to the raw text |
 | `className` | `string` | — | Class on the wrapping `<span>` |
 
@@ -84,6 +89,50 @@ staggered `animation-delay`, and injects the keyframes on first mount.
     Welcome
   </TextReveal>
 </>
+```
+
+### Scroll trigger (viewport)
+
+Defer the animation until the element enters the viewport via
+`IntersectionObserver`:
+
+```tsx
+<TextReveal
+  variant="cinematic-blur"
+  trigger="viewport"
+  viewportThreshold={0.3}
+>
+  ARVENIS
+</TextReveal>
+```
+
+### Sequencing with `onComplete`
+
+Chain animations or trigger UI changes when the entry animation finishes:
+
+```tsx
+const [showTagline, setShowTagline] = useState(false);
+
+<TextReveal
+  variant="cinematic-blur"
+  onComplete={() => setShowTagline(true)}
+>
+  ARVENIS
+</TextReveal>
+
+{showTagline && (
+  <TextReveal variant="fade" splitBy="word">
+    A new chapter in motion
+  </TextReveal>
+)}
+```
+
+### Custom decode characters
+
+```tsx
+<TextReveal variant="decode" decodeChars="01">
+  HACKED
+</TextReveal>
 ```
 
 ---
