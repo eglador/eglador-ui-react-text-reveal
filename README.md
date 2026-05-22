@@ -110,6 +110,11 @@ export function Hero() {
 | `duration` | `number` (ms) | per-variant | Override animation duration |
 | `startDelay` | `number` (ms) | `0` | Delay before the first letter starts |
 | `splitBy` | `"letter" \| "word"` | `"letter"` | Split unit |
+| `trigger` | `"mount" \| "viewport"` | `"mount"` | Start on mount or when scrolled into view |
+| `viewportThreshold` | `number` | `0.1` | IntersectionObserver threshold (0–1) |
+| `viewportRootMargin` | `string` | `"0px"` | IntersectionObserver `rootMargin` |
+| `onComplete` | `() => void` | — | Fires once when the last letter finishes |
+| `decodeChars` | `string` | `A–Z 0–9 @#$%&<>?` | Character pool for the `decode` variant |
 | `ariaLabel` | `string` | `children` | Accessible name override |
 | `className` | `string` | — | Class on the wrapping `<span>` |
 
@@ -122,6 +127,48 @@ const [key, setKey] = useState(0);
 
 <TextReveal key={key} variant="elastic">ARVENIS</TextReveal>
 <button onClick={() => setKey((k) => k + 1)}>Replay</button>
+```
+
+## Scroll trigger
+
+Defer the animation until the element enters the viewport:
+
+```tsx
+<TextReveal variant="cinematic-blur" trigger="viewport">
+  ARVENIS
+</TextReveal>
+```
+
+Tune with `viewportThreshold` (0–1) and `viewportRootMargin` (CSS string).
+
+## Sequencing with `onComplete`
+
+```tsx
+const [showTagline, setShowTagline] = useState(false);
+
+<TextReveal
+  variant="cinematic-blur"
+  onComplete={() => setShowTagline(true)}
+>
+  ARVENIS
+</TextReveal>
+
+{showTagline && (
+  <TextReveal variant="fade" splitBy="word">
+    A new chapter in motion
+  </TextReveal>
+)}
+```
+
+## Custom decode characters
+
+Replace the default character pool for the `decode` variant — binary, katakana,
+emoji, whatever you want:
+
+```tsx
+<TextReveal variant="decode" decodeChars="01">
+  HACKED
+</TextReveal>
 ```
 
 ## Development

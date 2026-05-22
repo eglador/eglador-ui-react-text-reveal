@@ -5,6 +5,8 @@ import { cn } from "../../lib/utils";
 import { ensureTextRevealStyles } from "./styles";
 import type { TextRevealVariant } from "./types";
 
+export type TextRevealTrigger = "mount" | "viewport";
+
 export interface TextRevealProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, "children"> {
   children: string;
@@ -13,6 +15,11 @@ export interface TextRevealProps
   duration?: number;
   startDelay?: number;
   splitBy?: "letter" | "word";
+  trigger?: TextRevealTrigger;
+  viewportThreshold?: number;
+  viewportRootMargin?: string;
+  onComplete?: () => void;
+  decodeChars?: string;
   ariaLabel?: string;
 }
 
@@ -22,7 +29,46 @@ const RANDOM_TRANSFORM_VARIANTS = new Set<TextRevealVariant>([
   "magnetic-snap",
 ]);
 
-const DECODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>?";
+const DEFAULT_DECODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>?";
+
+const DEFAULT_VARIANT_DURATION_MS: Partial<Record<TextRevealVariant, number>> = {
+  fade: 600,
+  "cinematic-blur": 1500,
+  decode: 1500,
+  "slide-up": 800,
+  "neon-flicker": 2000,
+  "flip-x": 800,
+  typewriter: 100,
+  elastic: 800,
+  "drop-bounce": 800,
+  wave: 1500,
+  skew: 800,
+  spotlight: 800,
+  shatter: 1000,
+  "stretch-y": 800,
+  "flip-y": 700,
+  "color-burst": 1200,
+  "focus-pull": 1200,
+  "wind-scatter": 1000,
+  "liquid-fill": 1500,
+  "cyber-glitch": 500,
+  "long-shadow": 1000,
+  "sonar-pulse": 500,
+  "squash-stretch": 800,
+  "ghost-float": 2000,
+  "origami-unfold": 1000,
+  "magnetic-snap": 800,
+  "outline-trace": 2500,
+  "spin-3d": 1200,
+  pendulum: 1500,
+  "laser-snap": 800,
+  heartbeat: 500,
+  elevator: 700,
+  magnifier: 900,
+  starburst: 1200,
+  "lantern-flicker": 4000,
+  "water-ripple": 500,
+};
 
 function randomTransform(variant: TextRevealVariant) {
   if (variant === "shatter") {
@@ -58,6 +104,11 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
       duration,
       startDelay = 0,
       splitBy = "letter",
+      trigger = "mount",
+      viewportThreshold = 0.1,
+      viewportRootMargin = "0px",
+      onComplete,
+      decodeChars = DEFAULT_DECODE_CHARS,
       ariaLabel,
       className,
       style,
@@ -78,12 +129,40 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
       return Array.from(children);
     }, [children, splitBy]);
 
+    const rootRef = React.useRef<HTMLSpanElement>(null);
+    React.useImperativeHandle(ref, () => rootRef.current as HTMLSpanElement);
+
+    const [active, setActive] = React.useState(trigger === "mount");
+
+    React.useEffect(() => {
+      if (trigger === "mount") {
+        setActive(true);
+        return;
+      }
+      const el = rootRef.current;
+      if (!el || typeof IntersectionObserver === "undefined") {
+        setActive(true);
+        return;
+      }
+      const obs = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setActive(true);
+            obs.disconnect();
+          }
+        },
+        { threshold: viewportThreshold, rootMargin: viewportRootMargin },
+      );
+      obs.observe(el);
+      return () => obs.disconnect();
+    }, [trigger, viewportThreshold, viewportRootMargin]);
+
     const [decoded, setDecoded] = React.useState<string[]>(() =>
       variant === "decode" ? tokens.map((t) => (/\s/.test(t) ? t : "?")) : [],
     );
 
     React.useEffect(() => {
-      if (variant !== "decode") return;
+      if (variant !== "decode" || !active) return;
       setDecoded(tokens.map((t) => (/\s/.test(t) ? t : "?")));
       const intervals: number[] = [];
       tokens.forEach((targetChar, idx) => {
@@ -100,7 +179,7 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
             window.clearInterval(id);
           } else {
             const rand =
-              DECODE_CHARS[Math.floor(Math.random() * DECODE_CHARS.length)];
+              decodeChars[Math.floor(Math.random() * decodeChars.length)];
             setDecoded((prev) => {
               const next = [...prev];
               next[idx] = rand;
@@ -112,7 +191,26 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
         intervals.push(id);
       });
       return () => intervals.forEach((id) => window.clearInterval(id));
-    }, [variant, tokens]);
+    }, [variant, tokens, active, decodeChars]);
+
+    React.useEffect(() => {
+      if (!active || !onComplete) return;
+      const variantDuration =
+        duration ?? DEFAULT_VARIANT_DURATION_MS[variant] ?? 1000;
+      const lastDelay =
+        startDelay + Math.max(0, tokens.length - 1) * staggerDelay;
+      const total = lastDelay + variantDuration;
+      const id = window.setTimeout(onComplete, total);
+      return () => window.clearTimeout(id);
+    }, [
+      active,
+      onComplete,
+      duration,
+      variant,
+      staggerDelay,
+      startDelay,
+      tokens.length,
+    ]);
 
     const rootStyle: React.CSSProperties = {
       ...style,
@@ -124,25 +222,29 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
 
     return (
       <span
-        ref={ref}
+        ref={rootRef}
         role="text"
         aria-label={ariaLabel ?? children}
         className={cn("egl-tr-root", className)}
         data-variant={variant}
+        data-active={active || undefined}
         style={rootStyle}
         {...rest}
       >
         {tokens.map((token, i) => {
           const isWhitespace = /^\s+$/.test(token);
           const display =
-            variant === "decode" && !isWhitespace ? decoded[i] ?? token : token;
+            variant === "decode" && !isWhitespace && active
+              ? decoded[i] ?? token
+              : token;
           const animationDelay = `${startDelay + i * staggerDelay}ms`;
-          const randomStyle = isRandomVariant
-            ? randomTransform(variant)
-            : undefined;
+          const randomStyle =
+            isRandomVariant && active ? randomTransform(variant) : undefined;
           const burstStyle =
-            variant === "starburst"
-              ? ({ "--egl-tr-burst-x": `${-(i - middle) * 60}px` } as React.CSSProperties)
+            variant === "starburst" && active
+              ? ({
+                  "--egl-tr-burst-x": `${-(i - middle) * 60}px`,
+                } as React.CSSProperties)
               : undefined;
 
           const letterStyle: React.CSSProperties = {
@@ -150,6 +252,20 @@ export const TextReveal = React.forwardRef<HTMLSpanElement, TextRevealProps>(
             ...burstStyle,
             animationDelay,
           };
+
+          if (!active) {
+            return (
+              <span
+                key={i}
+                aria-hidden="true"
+                className="egl-tr-letter"
+                data-space={isWhitespace || undefined}
+                style={{ opacity: 0 }}
+              >
+                {token}
+              </span>
+            );
+          }
 
           if (variant === "slide-up") {
             return (
